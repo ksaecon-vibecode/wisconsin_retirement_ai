@@ -195,9 +195,9 @@ cython_debug/
 .abstra/
 
 # Visual Studio Code
-#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore
 #   that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#   and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#   and can be added to the global gitignore or merged into this file. However, if you prefer,
 #   you could uncomment the following to ignore the entire vscode folder
 # .vscode/
 # Temporary file for partial code execution
@@ -216,3 +216,96 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+
+###############################################################################
+# ============================================================
+# Wisconsin Retirement AI Research Project
+# .gitignore
+# ============================================================
+# Raw data files are NEVER committed to version control.
+# Processed and final datasets are also excluded.
+# Only code, documentation, and output tables/figures are tracked.
+# ============================================================
+
+# ── Raw data (all formats) ──────────────────────────────────
+data/raw/
+data/processed/
+data/final/
+
+# ── Large file types (safety catch) ────────────────────────
+*.csv
+*.zip
+*.gz
+*.dta
+*.sav
+*.rds
+*.rda
+*.RData
+*.parquet
+*.feather
+*.xlsx
+*.xls
+
+# Exception: small reference files committed intentionally
+# (uncomment and add paths as needed)
+# !data/raw/hud/crosswalk_reference.csv
+
+# ── R environment ───────────────────────────────────────────
+.Rhistory
+.RData
+.Rproj.user/
+renv/library/
+renv/local/
+renv/lock/   # Keep renv.lock — it is the package version record
+!renv.lock
+
+# ── Python environment ──────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+.ipynb_checkpoints/
+
+# ── OS files ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor files ────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Sensitive files ─────────────────────────────────────────
+# Never commit API keys, credentials, or restricted data
+*.env
+.env
+secrets.yml
+api_keys.txt
+
+# ── Outputs (tables and figures ARE committed) ──────────────
+# outputs/tables/ — tracked
+# outputs/figures/ — tracked
+# outputs/maps/ — tracked
+# Exclude large rendered map files if needed:
+# outputs/maps/*.pdf
+
+# ── Paper drafts ────────────────────────────────────────────
+# Track .tex and .bib but not compiled PDFs
+paper/*.pdf
+paper/*.aux
+paper/*.log
+paper/*.bbl
+paper/*.blg
+paper/*.out
+paper/*.synctex.gz

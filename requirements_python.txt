@@ -1,0 +1,47 @@
+# ============================================================
+# Wisconsin Retirement AI — Python Requirements (Windows)
+# ============================================================
+# VERSION: Windows-compatible (flexible pins, pre-built wheels)
+#
+# HOW TO INSTALL (run these commands in PowerShell IN ORDER):
+#
+#   Step 1 — Upgrade pip first (required):
+#   python -m pip install --upgrade pip
+#
+#   Step 2 — Install all packages:
+#   pip install -r requirements_python.txt
+#
+# If you still get errors after upgrading pip, run the
+# minimal install instead (paste all at once):
+#   pip install pandas numpy pyarrow spacy vaderSentiment gensim sentence-transformers scikit-learn openpyxl tqdm us joblib
+#   python -m spacy download en_core_web_sm
+# ============================================================
+
+# ── Core data handling ──────────────────────────────────────
+pandas>=2.0.0
+numpy>=1.24.0
+pyarrow>=14.0.0
+
+# ── NLP — preprocessing ─────────────────────────────────────
+spacy>=3.5.0
+# After install run: python -m spacy download en_core_web_sm
+
+# ── NLP — Track A: AI classifier ───────────────────────────
+sentence-transformers>=2.2.0
+scikit-learn>=1.3.0
+
+# ── NLP — Track B: Topic modeling ──────────────────────────
+gensim>=4.3.0
+
+# ── NLP — Track C: Sentiment ────────────────────────────────
+vaderSentiment>=3.3.2
+
+# ── File formats ────────────────────────────────────────────
+openpyxl>=3.1.0
+
+# ── Geographic ──────────────────────────────────────────────
+us>=3.1.1
+
+# ── Utilities ───────────────────────────────────────────────
+tqdm>=4.65.0
+joblib>=1.3.0

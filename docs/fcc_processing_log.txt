@@ -1,0 +1,10 @@
+FCC Broadband Processing Log
+Generated: 2026-06-15 16:58:10.474324
+
+SCHEMA USED:
+  Primary (2014-2025):    Tier_3 = 25/3 Mbps ISP count
+  Historical (2008-2013): Tier_4 = 25/3 Mbps ISP count
+
+Total rows: 1,296
+Counties:   72
+Years:      [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
