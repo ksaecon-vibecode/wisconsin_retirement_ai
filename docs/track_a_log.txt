@@ -1,0 +1,67 @@
+============================================================
+Track A: AI Financial Tool Complaint Density
+Timestamp: 2026-06-22 21:40:52
+============================================================
+
+Keyword dictionary sizes:
+  Pre-2020:  29 terms
+  Post-2020: 38 terms
+  Combined:  62 unique terms
+
+Loading preprocessed corpus...
+  Rows: 27,348
+  Using narrative column: 'consumer_complaint_narrative'
+
+[Method 1] Applying keyword classifier...
+  AI-flagged by keywords: 33 of 27,348 (0.12%)
+
+  Most common matched keywords:
+      30  sofi
+       1  betterment
+       1  artificial intelligence
+       1  stash
+
+[Method 2] Attempting semantic classification...
+  Loading sentence transformer model (all-MiniLM-L6-v2)...
+  Encoding 10 seed sentences...
+  Encoding 27,348 narratives in batches...
+  AI-flagged by semantics: 432 of 27,348 (1.58%)
+  Agreement rate (keyword vs semantic): 98.3%
+  Both methods available. Keyword = primary, Semantic = robustness.
+
+Creating 300-narrative validation sample for manual labeling...
+  Validation sample saved: C:\Users\ksaec\Downloads\wisconsin_retirement_ai\code\02_nlp_pipeline\validation\ai_validation_sample_300.csv
+  INSTRUCTIONS: Open this CSV and add 1/0 labels in 'manual_label' column.
+  Label 1 = complaint is about AI financial tools, 0 = it is not.
+  Return to run validation evaluation in 02b_validate_classifier.py
+
+Aggregating to county-year level...
+  Loading fixed county FIPS from cfpb_wisconsin_with_county.parquet...
+  County FIPS joined: 20,261 matched
+  Rows with valid county FIPS: 20,261 of 27,348
+  Unique counties: 28
+  Population matched: 296 of 298
+  Sparse county-years (< 10 complaints): 131
+
+County-year aggregation complete:
+  Total county-year cells: 298
+  Counties: 28
+  Years: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026]
+  AI complaints total: 28
+  Mean AI density: 0.0048 per 10,000
+
+  AI complaints by year (Wisconsin):
+    2015:   337 total |    0 AI (0.0%) | density=0.0000
+    2016:   422 total |    0 AI (0.0%) | density=0.0000
+    2017:   739 total |    0 AI (0.0%) | density=0.0000
+    2018:   783 total |    0 AI (0.0%) | density=0.0000
+    2019:   735 total |    3 AI (0.4%) | density=0.0055
+    2020:   920 total |    1 AI (0.1%) | density=0.0020
+    2021:  1094 total |    0 AI (0.0%) | density=0.0000
+    2022:  1959 total |    0 AI (0.0%) | density=0.0000
+    2023:  2607 total |    0 AI (0.0%) | density=0.0000
+    2024:  4003 total |   11 AI (0.3%) | density=0.0126
+    2025:  6285 total |   11 AI (0.2%) | density=0.0237
+    2026:   311 total |    2 AI (0.6%) | density=0.0127
+
+Saved: C:\Users\ksaec\Downloads\wisconsin_retirement_ai\data\processed\cfpb_ai_density_county_year.parquet

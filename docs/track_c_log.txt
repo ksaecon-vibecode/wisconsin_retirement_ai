@@ -1,0 +1,57 @@
+============================================================
+Track C: Financial Distress Index (VADER Sentiment)
+Timestamp: 2026-06-22 21:55:14
+============================================================
+
+Loading VADER sentiment analyzer...
+  VADER loaded successfully
+
+Loading corpus from: cfpb_wisconsin_preprocessed.parquet
+  Rows: 27,348
+  Narrative column: 'consumer_complaint_narrative'
+  Using VADER scoring
+
+Scoring 27,348 narratives...
+
+Sentiment summary:
+  Mean compound score:   -0.0780
+  Mean distress score:   0.0780
+  Pct highly negative:   37.0%
+  Pct highly positive:   27.7%
+  Pct near neutral:      4.3%
+
+Sample — top 3 most distressed narratives:
+  [1] Score=1.000: Over the term of my lease with Kia Finance, I meticulously ensured that every payment was made on ti...
+  [2] Score=1.000: XXXX, and XXXX XXXX Firm both XXXX Party Debt XXXX have each Violated FDCPA and Title XXXX on multip...
+  [3] Score=1.000: XXXX XXXX XXXX XXXX submit this formal complaint against EXPERIAN INFORMATION SOLUTIONS (hereinafter...
+
+Sample — top 3 least distressed (most positive):
+  [1] Score=-1.000: I am writing to file a formal complaint with the CFPB regarding the American Express XXXX XXXX 's fa...
+  [2] Score=-1.000: XX/XX/scrub>XXXX XXXX XXXX Consumer Protection Bureau XXXX XXXX XXXX XXXX XXXX XXXX XXXX  RE : Forma...
+  [3] Score=-1.000: WHEN EXPERIAN STATES " Because customer service is our top priority we are in the process of mailing...
+
+Aggregating to county-year Financial Distress Index...
+  Loading fixed county FIPS from cfpb_wisconsin_with_county.parquet...
+  County FIPS joined: 20,261 matched
+  Rows with valid county FIPS: 20,261
+
+  County-year cells: 298
+  Counties:          28
+  Years:             [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026]
+
+  Mean distress index by year:
+    2015: mean=0.1824 min=-0.4801 max=0.9873
+    2016: mean=0.0671 min=-0.9680 max=0.8382
+    2017: mean=0.0711 min=-0.7033 max=0.8383
+    2018: mean=0.0168 min=-0.8689 max=0.7165
+    2019: mean=-0.0047 min=-0.4713 max=0.6637
+    2020: mean=0.0319 min=-0.6441 max=0.7484
+    2021: mean=0.0733 min=-0.4672 max=0.6405
+    2022: mean=0.0361 min=-0.7933 max=0.9950
+    2023: mean=0.0653 min=-0.7324 max=0.4917
+    2024: mean=0.0665 min=-0.3820 max=0.9006
+    2025: mean=0.2668 min=-0.0461 max=0.9940
+    2026: mean=0.2500 min=-0.5856 max=0.9628
+
+Saved: C:\Users\ksaec\Downloads\wisconsin_retirement_ai\data\processed\cfpb_distress_index_county_year.parquet
+Size:  17.9 KB

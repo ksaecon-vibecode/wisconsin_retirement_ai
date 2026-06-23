@@ -1,0 +1,100 @@
+============================================================
+FIX: Rebuild CFPB County FIPS (3-digit ZIP prefix)
+Timestamp: 2026-06-22 19:50:54
+============================================================
+
+[1/5] Loading HUD ZIP-to-county crosswalk...
+  HUD rows: 590,937
+  HUD columns: ['zip', 'crosswalk_year', 'primary_county_fips', 'primary_res_ratio']
+  Sample: [{'zip': '00501', 'crosswalk_year': 2011, 'primary_county_fips': '36103', 'primary_res_ratio': 0.0}, {'zip': '00501', 'crosswalk_year': 2012, 'primary_county_fips': '36103', 'primary_res_ratio': 0.0}]
+  ZIP3 prefixes: 914 unique
+  County FIPS: 3,246 unique
+
+[2/5] Building 3-digit ZIP prefix crosswalk...
+  Wisconsin-prefix rows in HUD: 13,016
+  Wisconsin ZIP3 prefixes found: ['530', '531', '532', '534', '535', '537', '538', '539', '540', '541', '542', '543', '544', '545', '546', '547', '548', '549']
+  Using 'primary_res_ratio' as weight
+
+  3-digit prefix crosswalk built:
+  Entries: 18
+
+  Wisconsin ZIP3 -> Primary County:
+    530XX -> 55133
+    531XX -> 55133
+    532XX -> 55079
+    534XX -> 55101
+    535XX -> 55025
+    537XX -> 55025
+    538XX -> 55043
+    539XX -> 55021
+    540XX -> 55109
+    541XX -> 55075
+    542XX -> 55071
+    543XX -> 55009
+    544XX -> 55073
+    545XX -> 55125
+    546XX -> 55123
+    547XX -> 55033
+    548XX -> 55007
+    549XX -> 55139
+
+  Saved: C:\Users\ksaec\Downloads\wisconsin_retirement_ai\data\processed\hud_zip3_county_crosswalk.parquet
+
+[3/5] Loading raw CFPB Wisconsin file...
+  CFPB rows: 27,348
+  CFPB columns: ['date_received', 'product', 'sub-product', 'issue', 'sub-issue', 'consumer_complaint_narrative', 'company_public_response', 'company', 'state', 'zip_code', 'tags', 'submitted_via', 'date_sent_to_company', 'company_response_to_consumer', 'timely_response', 'complaint_id', 'has_narrative', 'date_received_parsed', 'year', 'month', 'post_2020', 'zip_clean']
+  ZIP column: 'zip_clean'
+
+[4/5] Extracting ZIP prefixes from CFPB data...
+  ZIP3 prefix extracted: 20,261 of 27,348
+  ZIP5 full (unredacted): 20,261 of 27,348
+  ZIP3 prefix distribution:
+    532XX: 11,068
+    531XX: 1,993
+    537XX: 1,461
+    530XX: 1,157
+    549XX: 961
+    535XX: 960
+    534XX: 774
+    543XX: 529
+    547XX: 325
+    544XX: 289
+    546XX: 181
+    541XX: 164
+    540XX: 159
+    539XX: 88
+    548XX: 79
+    542XX: 71
+    602XX: 1
+    325XX: 1
+
+[5/5] Assigning county FIPS to all complaints...
+  Matched via exact ZIP5: 20,261
+  Matched via ZIP3 prefix: 20,259
+
+  FINAL county FIPS assignment:
+  Total matched: 20,261 of 27,348 (74.1%)
+  Unique counties: 28
+
+  Complaints by county (top 15):
+    55079: 11,616 complaints
+    55025: 1,994 complaints
+    55133: 1,128 complaints
+    55101: 886 complaints
+    55059: 742 complaints
+    55009: 626 complaints
+    55087: 468 complaints
+    55139: 440 complaints
+    55105: 427 complaints
+    55117: 291 complaints
+    55131: 214 complaints
+    55035: 189 complaints
+    55063: 181 complaints
+    55109: 130 complaints
+    55073: 120 complaints
+
+  Non-WI counties assigned (should be 0): 2
+
+Rebuilt CFPB file saved: C:\Users\ksaec\Downloads\wisconsin_retirement_ai\data\processed\cfpb_wisconsin_with_county.parquet
+Size: 11.0 MB
+Shape: 27,348 rows x 24 columns

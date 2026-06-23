@@ -1,0 +1,47 @@
+============================================================
+Phase 2 NLP — Step 02a: Text Preprocessing
+Timestamp: 2026-06-22 18:43:09
+============================================================
+
+Loading spaCy...
+  spaCy en_core_web_sm loaded
+
+Loading corpus from: cfpb_wisconsin_with_county.parquet
+  Rows loaded: 27,348
+  Columns: ['date_received', 'product', 'sub-product', 'issue', 'sub-issue', 'consumer_complaint_narrative', 'company_public_response', 'company', 'state', 'zip_code', 'tags', 'submitted_via', 'date_sent_to_company', 'company_response_to_consumer', 'timely_response', 'complaint_id', 'has_narrative', 'date_received_parsed', 'year', 'month', 'post_2020', 'zip_clean', 'primary_county_fips', 'primary_res_ratio']
+  Narrative column: 'consumer_complaint_narrative'
+  Rows with non-empty narrative: 27,348
+
+  Pre-2020 complaints:  27,239
+  Post-2020 complaints: 109
+
+Preprocessing 27,348 narratives...
+  This may take 5-15 minutes depending on machine speed...
+
+Quality checks:
+  Mean tokens per document: 62.0
+  Median tokens:            42.0
+  Min tokens:               0
+  Max tokens:               2181
+  Documents with < 10 tokens: 2,220 (8.1%)
+
+Sample preprocessed narratives (first 3 with >= 20 tokens):
+
+  [1] Original (first 100 chars):
+       On XX/XX/year>, I requested a loan from King of cash for the amount of {$900.00} placed into my chec...
+  [1] Preprocessed (30 tokens):
+       request king cash place check state within hour return date email multiple inform cancel agreement r...
+
+  [2] Original (first 100 chars):
+       On XXXX I was going through and cancelling credit cards that I never use, I came to the home depot c...
+  [2] Preprocessed (28 tokens):
+       cancel never home depot citi someone maxe purchasse cancel citi report fraud open investigation reci...
+
+  [3] Original (first 100 chars):
+       I spoke with Rocket Mortgage about my monthly payment, and it increased unexpectedly. Normally, escr...
+  [3] Preprocessed (57 tokens):
+       rocket mortgage monthly increase unexpectedly normally escrow increase small significantly due high ...
+
+Saved: C:\Users\ksaec\Downloads\wisconsin_retirement_ai\data\processed\cfpb_wisconsin_preprocessed.parquet
+Size:  15.3 MB
+Shape: 27,348 rows x 28 columns

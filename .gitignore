@@ -309,3 +309,4 @@ paper/*.bbl
 paper/*.blg
 paper/*.out
 paper/*.synctex.gz
+data/raw/nfcs/restricted/

@@ -1,0 +1,118 @@
+============================================================
+Workstream 1A: NFCS Processing — Final Version
+Timestamp: 2026-06-22 18:19:56
+============================================================
+
+[1/6] Loading restricted tracking files...
+  A2 (ZIP):       160,967 rows, columns: ['NFCSID', 'A2']
+  A4 (ethnicity): 160,967 rows, columns: ['NFCSID', 'A4_1', 'A4_2', 'A4_3', 'A4_4_2015', 'A4_7_2015', 'A4_4_2012', 'A4_5', 'A4_6', 'A4_99', 'A4A']
+  Merged restricted: 160,967 rows
+  Valid 5-digit ZIP codes: 160,967 of 160,967
+
+[2/6] Loading HUD ZIP-to-county crosswalk...
+  HUD crosswalk loaded: 590,937 ZIP-year pairs
+
+[3/6] Processing public NFCS wave files...
+
+  --- Wave 2009 ---
+    File: NFCS 2009 State Data 220712 v2.csv
+    National rows: 28,146
+    Wisconsin rows: 548
+    After employment filter: 261
+    After non-retired filter (A10A=1): 261
+    After outcome filter: 261
+    Enrollment rate: 79.7%
+    Mean literacy score: 3.48/5
+    Mean impatience index: 0.72/3
+
+  --- Wave 2012 ---
+    File: NFCS 2012 State Data 130503.csv
+    National rows: 25,509
+    Wisconsin rows: 501
+    After employment filter: 252
+    After non-retired filter (A10A=1): 252
+    After outcome filter: 252
+    Enrollment rate: 76.2%
+    Mean literacy score: 3.17/5
+    Mean impatience index: 0.73/3
+
+  --- Wave 2015 ---
+    File: NFCS 2015 State Data 160619.csv
+    National rows: 27,564
+    Wisconsin rows: 505
+    After employment filter: 270
+    After non-retired filter (A10A=1): 270
+    After outcome filter: 270
+    Enrollment rate: 75.6%
+    Mean literacy score: 3.29/5
+    Mean impatience index: 0.71/3
+
+  --- Wave 2018 ---
+    File: NFCS 2018 State Data 190603.csv
+    National rows: 27,091
+    Wisconsin rows: 506
+    After employment filter: 270
+    After non-retired filter (A10A=1): 270
+    After outcome filter: 270
+    Enrollment rate: 74.4%
+    Mean literacy score: 2.88/5
+    Mean impatience index: 0.78/3
+
+  --- Wave 2021 ---
+    File: NFCS 2021 State Data 220627.csv
+    National rows: 27,118
+    Wisconsin rows: 503
+    After employment filter: 248
+    After non-retired filter (A10A=1): 248
+    After outcome filter: 248
+    Enrollment rate: 72.6%
+    Mean literacy score: 2.75/5
+    Mean impatience index: 0.70/3
+
+  --- Wave 2024 ---
+    File: NFCS 2024 State Data 250623.csv
+    National rows: 25,539
+    Wisconsin rows: 500
+    After employment filter: 243
+    After non-retired filter (A10A=1): 243
+    After outcome filter: 243
+    Enrollment rate: 82.3%
+    Mean literacy score: 3.00/5
+    Mean impatience index: 0.77/3
+    B61 (AI interest) found in 2024 wave
+
+[4/6] Pooling waves and merging restricted variables...
+  Pooled: 1,544 respondents across 6 waves
+  ZIP codes matched: 1,544 of 1,544
+
+[5/6] Crosswalking ZIP codes to county FIPS...
+  County FIPS matched: 1,283 of 1,544
+  Match rate: 83.1%
+  Attempting fallback match for 261 unmatched rows...
+  After fallback: 1,544 matched (100.0%)
+
+[6/6] Constructing derived variables...
+  Minority share: 14.8%
+  Low-income share: 22.3%
+
+============================================================
+FINAL POOLED DATASET SUMMARY
+============================================================
+Total respondents:   1,544
+Survey waves:        [np.int64(2009), np.int64(2012), np.int64(2015), np.int64(2018), np.int64(2021), np.int64(2024)]
+Enrollment rate:     76.7%
+Mean literacy score: 3.10/5
+Mean impatience:     0.73/3
+County FIPS present: 1,544
+ZIP present:         1,544
+
+By wave:
+  2009: 261 respondents | enrolled=79.7% | literacy=3.48
+  2012: 252 respondents | enrolled=76.2% | literacy=3.17
+  2015: 270 respondents | enrolled=75.6% | literacy=3.29
+  2018: 270 respondents | enrolled=74.4% | literacy=2.88
+  2021: 248 respondents | enrolled=72.6% | literacy=2.75
+  2024: 243 respondents | enrolled=82.3% | literacy=3.00
+
+Attrition table saved: C:\Users\ksaec\Downloads\wisconsin_retirement_ai\docs\nfcs_attrition_table.csv
+Saved: C:\Users\ksaec\Downloads\wisconsin_retirement_ai\data\processed\nfcs_wisconsin_pooled.parquet

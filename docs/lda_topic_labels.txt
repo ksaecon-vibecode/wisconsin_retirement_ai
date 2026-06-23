@@ -1,0 +1,50 @@
+LDA Topic Labels
+Generated: 2026-06-22 19:12:27.407563
+Backend: sklearn
+K=15
+
+Topic 0: Topic 0
+  Terms: action, legal, law, practice, consumer, act, against, comply, failure, violation
+
+Topic 1: Topic 1
+  Terms: creditor, system, banking system, consumer, cause, accurate, section, unfair, consent, efficiency banking
+
+Topic 2: Topic 2
+  Terms: information, report, reporting, agency, collection, bankruptcy, provide, verify, fcra, request
+
+Topic 3: Topic 3
+  Terms: inquiry, remove, date, report, please, balance, number, creditor, authorize, remove report
+
+Topic 4: Investment Product Confusion
+  Terms: consumer, dispute, information, reinvestigation, agency, period, provide, item, paragraph, notice
+
+Topic 5: Topic 5
+  Terms: identity, theft, identity theft, report, information, fraudulent, block, result, item, ftc
+
+Topic 6: Topic 6
+  Terms: under, report, consumer, violation, reporting, act, fair, information, code, fcra
+
+Topic 7: Topic 7
+  Terms: cash, app, fargo, wells, wells fargo, cash app, resolution, merchant, act, leave
+
+Topic 8: Topic 8
+  Terms: request, issue, provide, transaction, return, hold, resolve, complaint, process, offer
+
+Topic 9: Topic 9
+  Terms: late, balance, due, score, report, statement, date, never, off, bill
+
+Topic 10: Topic 10
+  Terms: number, name, information, address, never, phone, fraud, security, open, show
+
+Topic 11: Topic 11
+  Terms: report, dispute, information, inaccurate, experian, equifax, remove, transunion, file, investigation
+
+Topic 12: Topic 12
+  Terms: consumer, section, reporting, state, agency, reporting agency, consumer reporting, information, right, section state
+
+Topic 13: Topic 13
+  Terms: hard, consumer, report, hard inquiry, collection, consumer report, express, inquiry, theft fraud, fraud
+
+Topic 14: Topic 14
+  Terms: back, check, now, state, mortgage, over, again, even, never, still
+
