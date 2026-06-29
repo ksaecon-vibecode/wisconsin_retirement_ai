@@ -1,0 +1,159 @@
+============================================================
+Master Dataset Diagnostics
+2026-06-29 16:46:13
+============================================================
+
+[1] Loading master dataset...
+  Rows: 1,544
+  Columns: 72
+  Column names: AGE_NUM, ai_complaint_density_final, ai_complaint_density_final_log, ai_complaints_keyword, ai_interest, bb_providers_100_10, bb_providers_25_3, bias_cc_revolve, bias_overdraft, bias_payday, county_fips, distress_index, education, employment, enrolled, era, female, fin_ed_received, fin_ed_school, fin_fragility, homeowner, impatience_index, impatience_std, income, literacy_score, literacy_std, log_bb_25_3, log_median_income, low_income, low_literacy, marital, mean_vader_compound, median_hh_income, minority, NFCSID, pct_asian_nh, pct_bach_plus, pct_black_nh, pct_broadband, pct_highly_negative, pct_hispanic, pct_owner_occ, pct_white_nh, pop_total, poverty_rate, race_eth, race_eth_restricted, ret_calc, STATEQ_NUM, SURVEY_WAVE, topic_0_topic_0, topic_1_topic_1, topic_10_topic_10, topic_11_topic_11, topic_12_topic_12, topic_13_topic_13, topic_14_topic_14, topic_2_topic_2, topic_3_topic_3, topic_4_investment_product_confusion, topic_5_topic_5, topic_6_topic_6, topic_7_topic_7, topic_8_topic_8, topic_9_topic_9, total_complaints, unemp_rate, wave_fe, wave_year, weight_nat, weight_st, zip_clean
+
+[2] Variable distributions (key regression variables):
+Enrolled (outcome):
+n=1,544, missing=0 (0%)
+mean=0.767, sd=0.423
+min=0, max=1
+expected range [0, 1]: OK
+Literacy score:
+n=1,544, missing=0 (0%)
+mean=3.1, sd=1.434
+min=0, max=5
+expected range [0, 5]: OK
+Impatience index:
+n=1,544, missing=0 (0%)
+mean=0.734, sd=0.81
+min=0, max=3
+expected range [0, 3]: OK
+AI density (primary):
+n=867, missing=677 (43.8%)
+mean=0.079, sd=0.189
+min=0, max=0.964
+expected range [0, 10]: OK
+Distress index:
+n=867, missing=677 (43.8%)
+mean=0.048, sd=0.245
+min=-0.869, max=0.987
+expected range [-1, 1]: OK
+Broadband providers (IV):
+n=1,544, missing=0 (0%)
+mean=2.696, sd=1.313
+min=0, max=5
+expected range [0, 10]: OK
+Poverty rate:
+n=1,544, missing=0 (0%)
+mean=11.791, sd=4.528
+min=3.975, max=28.852
+expected range [0, 100]: OK
+Log median income:
+n=1,544, missing=0 (0%)
+mean=10.984, sd=0.207
+min=10.354, max=11.529
+expected range [9, 13]: OK
+Pct bachelor+:
+n=1,544, missing=0 (0%)
+mean=29.68, sd=9.75
+min=10.341, max=53.986
+expected range [0, 100]: OK
+Unemployment rate:
+n=1,544, missing=0 (0%)
+mean=5.078, sd=2.455
+min=2.3, max=14.3
+expected range [0, 30]: OK
+Minority indicator:
+n=1,544, missing=0 (0%)
+mean=0.148, sd=0.355
+min=0, max=1
+expected range [0, 1]: OK
+Low income indicator:
+n=1,544, missing=0 (0%)
+mean=0.223, sd=0.416
+min=0, max=1
+expected range [0, 1]: OK
+
+[3] Missing data patterns:
+  Variable                          N Missing   Pct Miss
+  enrolled                               0        0%
+  literacy_score                         0        0%
+  impatience_index                       0        0%
+  county_fips                            0        0%
+  SURVEY_WAVE                            0        0%
+  bb_providers_25_3                      0        0%
+  poverty_rate                           0        0%
+  unemp_rate                             0        0%
+  log_median_income                      0        0%
+  pct_bach_plus                          0        0%
+  minority                               0        0%
+  low_income                             0        0%
+  ai_complaint_density_final           677     43.8%
+  distress_index                       677     43.8%
+
+  Missingness on AI density by wave:
+
+[4] Wave balance:
+  Enrollment trend: consistent decline 2009-2021 [OK]
+
+[5] Outcome variable — retirement enrollment:
+  Overall enrollment rate: 76.7%
+  N enrolled: 1185
+  N not enrolled: 359
+  Counties with >= 5 respondents: 45
+  County enrollment range: 33.3% - 90%
+  County enrollment SD: 12.2 pp
+
+[6] Behavioral variables:
+  Literacy score distribution (0-5):
+    0  1  2  3  4  5
+    85  153  272  324  433  277
+  Pct scoring 0 (floor): 5.5%
+  Pct scoring 5 (ceiling): 17.9%
+
+  Impatience index distribution (0-3):
+    0  1  2  3
+    717  571  206  50
+
+[7] AI density variable:
+  Non-missing: 867 respondents
+  Mean: 0.0789
+  Median: 0
+  SD: 0.189
+  Max: 0.9641
+  Pct zero: 60.6%
+  Coefficient of variation: 2.39
+  Variation: SUFFICIENT for identification [OK]
+
+[8] Correlation matrix (key regressors):
+  No correlations above 0.7 [OK]
+
+  Full correlation matrix:
+
+[9] Expected regression sample sizes:
+  Model 1 (behavioral baseline): 1,544 obs
+  Models 2-4 (AI moderation): 867 obs
+  IV-Probit sample (fin_ed_school): 263 obs
+
+  Subgroup sizes (for Model 4 triple interactions):
+  Low income (low_income=1): 344
+  Minority (minority=1): 228
+  Gender columns found: female
+  female distribution: NA=1544
+
+[10] Instrumental variable checks:
+  FCC broadband (IV for AI exposure):
+    Non-missing: 1544
+    Mean: 2.7 ISPs
+    Range: 0 - 5
+    Correlation with AI density: r = 0.368
+    First-stage signal: PRESENT [OK]
+Financial education columns: fin_ed_received, fin_ed_school
+  fin_ed_received: 1=131, 2=263, 3=757, 98=123, 99=9, NA=261
+  fin_ed_school: 1=172, 2=88, 98=3, NA=1281
+DIAGNOSTIC VERDICT
+============================================================
+  [PASS] Sample size adequate (n>1000)
+  [PASS] No zero missing on core vars
+  [PASS] AI density has variation (CV>0.5)
+  [PASS] Models 2-4 sample adequate (n>500)
+  [PASS] Broadband IV present
+  [PASS] Minority subgroup adequate (n>100)
+
+ALL CHECKS PASSED. Proceed to Phase 3.

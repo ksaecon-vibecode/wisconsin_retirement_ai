@@ -421,7 +421,7 @@ if year_col and len(df_wi) > 0:
     # AI complaint density per 10,000 residents
     agg["ai_complaint_density"] = np.where(
         agg["pop_total"].notna() & (agg["pop_total"] > 0),
-        agg["ai_complaints_keyword"] / agg["pop_total"] * 10000,
+        agg["ai_complaints_semantic"].fillna(0) / agg["pop_total"] * 10000,
         np.nan
     )
     agg["ai_complaint_density_log"] = np.log1p(agg["ai_complaint_density"])
@@ -435,23 +435,39 @@ if year_col and len(df_wi) > 0:
         agg.groupby("county_fips")["ai_complaint_density"]
         .transform(lambda x: x.rolling(window=3, min_periods=1, center=True).mean())
     )
+    # Final density — semantic (primary)
     agg["ai_complaint_density_final"] = np.where(
         sparse_mask, agg["density_rolling3"], agg["ai_complaint_density"]
     )
     agg["ai_complaint_density_final_log"] = np.log1p(agg["ai_complaint_density_final"])
+    # Final density — keyword (robustness)
+    # Guard: column may not exist if all keyword counts are NaN
+    if "ai_complaint_density_kw" in agg.columns:
+        agg["density_kw_rolling3"] = (
+            agg.groupby("county_fips")["ai_complaint_density_kw"]
+            .transform(lambda x: x.rolling(window=3, min_periods=1, center=True).mean())
+        )
+        agg["ai_complaint_density_kw_final"] = np.where(
+            sparse_mask, agg["density_kw_rolling3"], agg["ai_complaint_density_kw"]
+        )
+        agg["ai_complaint_density_kw_final_log"] = np.log1p(agg["ai_complaint_density_kw_final"])
+    else:
+        agg["ai_complaint_density_kw_final"]     = np.nan
+        agg["ai_complaint_density_kw_final_log"] = np.nan
+        log("  NOTE: keyword density column absent — set to NaN (only 2 keyword matches)")
 
     log(f"\nCounty-year aggregation complete:")
     log(f"  Total county-year cells: {len(agg):,}")
     log(f"  Counties: {agg['county_fips'].nunique()}")
     log(f"  Years: {sorted(agg['year'].dropna().unique().tolist())}")
-    log(f"  AI complaints total: {agg['ai_complaints_keyword'].sum():,.0f}")
+    log(f"  AI complaints total (semantic): {agg['ai_complaints_semantic'].fillna(0).sum():,.0f}")
     log(f"  Mean AI density: {agg['ai_complaint_density_final'].mean():.4f} per 10,000")
 
     log("\n  AI complaints by year (Wisconsin):")
     yr_summary = agg.groupby("year").agg(
         counties     = ("county_fips", "nunique"),
         total_compl  = ("total_complaints", "sum"),
-        ai_compl     = ("ai_complaints_keyword", "sum"),
+        ai_compl     = ("ai_complaints_semantic", lambda x: x.fillna(0).sum()),
         mean_density = ("ai_complaint_density_final", "mean")
     ).reset_index()
     for _, row in yr_summary.iterrows():
