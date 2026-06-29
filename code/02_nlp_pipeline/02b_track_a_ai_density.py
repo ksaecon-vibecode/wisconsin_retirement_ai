@@ -77,8 +77,8 @@ log("=" * 60)
 
 PRE_2020_KEYWORDS = {
     # Robo-advisor platforms (named)
-    'wealthfront', 'betterment', 'ellevest', 'acorns', 'stash',
-    'sofi', 'wealthsimple', 'schwab intelligent', 'vanguard digital',
+    'wealthfront', 'betterment', 'ellevest', 'acorns',
+    'wealthsimple', 'schwab intelligent', 'vanguard digital',
     'fidelity go', 'ally invest',
     # Generic pre-LLM AI finance terms
     'robo advisor', 'robo-advisor', 'roboadvisor',
