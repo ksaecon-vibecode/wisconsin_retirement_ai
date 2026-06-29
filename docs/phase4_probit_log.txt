@@ -1,0 +1,65 @@
+============================================================
+Phase 4 — Probit Models (Main Results)
+2026-06-29 17:26:25
+============================================================
+
+[1] Loading analytical dataset...
+  Rows: 1,544 | Cols: 85
+
+[2] Defining model samples...
+  Model 1 sample: 1,544 obs
+  Models 2-4 sample: 867 obs
+  Model 4 female subsample: 495 obs
+
+[3] Estimating models...
+  Model 1: Behavioral baseline...
+    N = 1544 | Converged: FALSE
+  Model 2: AI moderation (Literacy x AI)...
+    N = 867 | Converged: FALSE
+  Model 3: Behavioral equalizer (+ Impatience x AI)...
+    N = 867 | Converged: FALSE
+  Model 4: Heterogeneity (triple interactions)...
+    Low income x AI subsample: 172
+    Minority x AI subsample: 137
+    Female x AI subsample: 244
+    N = 867 | Converged: FALSE
+    Model 4b (female) N = 495
+
+[4] Computing average marginal effects (AME)...
+  Model 1 AME failed: For this model type, `marginaleffects` cannot take into account the uncertainty in fixed-effects parameters. This is especially consequential for predictions and their uncertainty intervals. Set `vcov=FALSE` to compute estimates without standard errors.
+  Model 2 AME failed: For this model type, `marginaleffects` cannot take into account the uncertainty in fixed-effects parameters. This is especially consequential for predictions and their uncertainty intervals. Set `vcov=FALSE` to compute estimates without standard errors.
+  Model 3 AME failed: For this model type, `marginaleffects` cannot take into account the uncertainty in fixed-effects parameters. This is especially consequential for predictions and their uncertainty intervals. Set `vcov=FALSE` to compute estimates without standard errors.
+  Model 4 AME failed: For this model type, `marginaleffects` cannot take into account the uncertainty in fixed-effects parameters. This is especially consequential for predictions and their uncertainty intervals. Set `vcov=FALSE` to compute estimates without standard errors.
+
+[5] Key coefficient results:
+------------------------------------------------------------
+Model 1 — Behavioral baseline:
+               literacy_score: b=0.2682, SE=0.0235, t=11.41***
+             impatience_index: b=0.1093, SE=0.042, t=2.6***
+Model 2 — AI moderation:
+               literacy_score: b=0.227, SE=0.0366, t=6.2***
+             impatience_index: b=0.0466, SE=0.0519, t=0.9
+               ai_density_log: b=-0.4876, SE=0.625, t=-0.78
+                     lit_x_ai: b=-0.3188, SE=0.2037, t=-1.57
+Model 3 — Behavioral equalizer:
+               literacy_score: b=0.2259, SE=0.0368, t=6.14***
+             impatience_index: b=0.0325, SE=0.0497, t=0.65
+               ai_density_log: b=-0.664, SE=0.669, t=-0.99
+                     lit_x_ai: b=-0.299, SE=0.21, t=-1.42
+                     imp_x_ai: b=0.1919, SE=0.1791, t=1.07
+Model 4 — Heterogeneity:
+               ai_density_log: b=-0.0053, SE=0.6447, t=-0.01
+                     lit_x_ai: b=-0.3637, SE=0.165, t=-2.2**
+                     imp_x_ai: b=-0.4334, SE=0.1712, t=-2.53**
+            lit_x_ai_x_lowinc: b=-0.1846, SE=0.1641, t=-1.12
+          imp_x_ai_x_minority: b=1.0542, SE=0.2519, t=4.18***
+
+[6] Average Marginal Effects — key variables:
+------------------------------------------------------------
+
+[7] Producing publication table...
+  Table saved: C:/Users/ksaec/Downloads/wisconsin_retirement_ai/outputs/tables/table2_probit_main.csv
+
+[8] Producing marginal effects plot...
+  Plot failed: no applicable method for 'mutate' applied to an object of class "NULL"
+Model objects saved: data/final/probit_models.rds

@@ -1,0 +1,102 @@
+============================================================
+Phase 3: Variable Construction
+2026-06-29 17:08:01
+============================================================
+
+[1/8] Loading master dataset...
+  Rows: 1,544 | Cols: 72
+  Waves: 2009, 2012, 2015, 2018, 2021, 2024
+
+[2/8] Constructing gender variable from NFCS public files...
+  Wave 2009 (A3B): 2281 female, 1519 male, 24346 missing
+  Wave 2012 (A3B): 1821 female, 978 male, 22710 missing
+  Wave 2015 (A3B): 2156 female, 1183 male, 24225 missing
+  Wave 2018 (A3B): 1996 female, 1082 male, 24013 missing
+  Wave 2021 (A50A): 14653 female, 12465 male, 0 missing
+  Wave 2024 (A50A): 13303 female, 12236 male, 0 missing
+Gender variable constructed:
+    Female: 340 (22%)
+    Male:   309 (20%)
+    Missing: 895
+
+[3/8] Recoding financial education IV...
+  fin_ed_participated: 263 yes, 888 no, 393 missing
+  fin_ed_highschool: 172 yes, 88 no, 1284 missing
+
+[4/8] Standardizing behavioral variables...
+  literacy_std: mean=0, sd=1
+  impatience_std: mean=0, sd=1
+  low_literacy (<=2): 510 (33%)
+  high_impatience (>=2): 256 (16.6%)
+
+[5/8] Verifying low-income threshold...
+  Income distribution:
+           <$15k n=77 (5%)
+         $15-25k n=125 (8.1%)
+         $25-35k n=142 (9.2%)
+         $35-50k n=205 (13.3%)
+         $50-75k n=344 (22.3%)
+        $75-100k n=266 (17.2%)
+       $100-150k n=266 (17.2%)
+       $150-200k n=102 (6.6%)
+       $200-300k n=13 (0.8%)
+          $300k+ n=4 (0.3%)
+Threshold at bracket <=3 (<$35k): 22.3% of sample
+  Threshold at bracket <=4 (<$50k): 35.6% of sample
+  Decision: keep <=3 (<$35k) as low_income threshold.
+  This represents the bottom ~22% — households clearly below
+  Wisconsin median who face genuine retirement savings constraints.
+  low_income confirmed: 344 respondents
+
+[6/8] Constructing interaction terms...
+  Interaction term coverage (non-missing):
+                     lit_x_ai: 867 non-missing
+                     imp_x_ai: 867 non-missing
+            lit_x_ai_x_lowinc: 867 non-missing
+            imp_x_ai_x_female: 495 non-missing
+          imp_x_ai_x_minority: 867 non-missing
+
+[7/8] Power analysis...
+  Model 1 sample: 1544
+  Models 2-4 sample: 867
+
+  Minimum detectable effect sizes (Cohen's h, two-sided, α=0.05):
+At 80% power, Model 1 (n=1544) can detect effects of h=0.0713
+  At 80% power, Models 2-4 (n=867) can detect effects of h=0.0952
+  Cohen's h ≈ 0.14 corresponds to roughly a 7 pp difference in
+  enrollment rates between groups -- detectable and policy-relevant.
+  Triple interactions in Model 4 will have less power given subgroup sizes.
+
+[8/8] Producing Table 1 — Descriptive Statistics...
+
+  Table 1 Preview:
+Saved: C:/Users/ksaec/Downloads/wisconsin_retirement_ai/outputs/tables/table1_descriptives.csv
+  Wave table saved: C:/Users/ksaec/Downloads/wisconsin_retirement_ai/outputs/tables/wave_summary_table.csv
+  Wave table:
+
+============================================================
+SAVING ANALYTICAL DATASET
+============================================================
+  Saved: C:/Users/ksaec/Downloads/wisconsin_retirement_ai/data/final/master_analytical.parquet
+  Rows: 1,544
+  Columns: 85
+  Size: 116.8 KB
+
+New variables constructed in Phase 3:
+  [OK]                       female non-missing: 649
+  [OK]          fin_ed_participated non-missing: 1151
+  [OK]            fin_ed_highschool non-missing: 260
+  [OK]                 literacy_std non-missing: 1544
+  [OK]               impatience_std non-missing: 1544
+  [OK]                 low_literacy non-missing: 1544
+  [OK]              high_impatience non-missing: 1544
+  [OK]               ai_density_log non-missing: 867
+  [OK]               ai_density_std non-missing: 1544
+  [OK]                       bb_std non-missing: 1544
+  [OK]                     lit_x_ai non-missing: 867
+  [OK]                 lit_std_x_ai non-missing: 867
+  [OK]                     imp_x_ai non-missing: 867
+  [OK]                 imp_std_x_ai non-missing: 867
+  [OK]            lit_x_ai_x_lowinc non-missing: 867
+  [OK]            imp_x_ai_x_female non-missing: 495
+  [OK]          imp_x_ai_x_minority non-missing: 867
