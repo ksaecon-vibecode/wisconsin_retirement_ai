@@ -1,0 +1,37 @@
+[S1] Loading analytical dataset for spatial model...
+  Spatial model sample: 867 obs
+
+[S2] Aggregating to county level for spatial regression...
+  Counties with AI-subsample data: 26
+  Counties with full data after shapefile join: 26 of 72
+  Final spatial regression sample: 26 counties
+  NOTE: 2 counties have zero neighbors in restricted sample
+
+[S3] Estimating spatial lag model (county-level, LPM)...
+
+[S4] Spatial lag model results:
+  Rho (spatial lag coefficient): 0.1642
+
+  Coefficient comparison — OLS vs Spatial Lag:
+           literacy_mean  OLS=0.0913   Spatial=0.0541
+         impatience_mean  OLS=-0.0208   Spatial=-0.0558
+         ai_density_mean  OLS=-0.0944   Spatial=-1.5824
+           lit_x_ai_mean  OLS=-0.1377   Spatial=0.396
+           imp_x_ai_mean  OLS=0.6225   Spatial=-0.0857
+
+  INTERPRETATION:
+  If the Literacy x AI and Impatience x AI coefficients retain
+  the same sign and similar magnitude in the spatial lag model
+  as in OLS, this confirms the headline interaction effects are
+  not artifacts of spatial clustering in the underlying data.
+
+  *** DIAGNOSTIC CAVEAT — DO NOT CITE AS ROBUSTNESS CHECK ***
+  This spatial lag model used only 26 of 72 counties, split into
+  5 disconnected sub-graphs. Both lit_x_ai and imp_x_ai flip sign
+  relative to OLS -- this reflects estimator instability on a
+  small, fragmented sample, NOT confirmation that main results
+  are spatially robust. Table column names reflect this caveat.
+  For the paper: report only that a spatial lag model was
+  attempted and judged unreliable due to insufficient county
+  coverage; do not report or interpret its coefficients.
+Spatial robustness table saved: C:/Users/ksaec/Downloads/wisconsin_retirement_ai/outputs/tables/table5_spatial_robustness.csv

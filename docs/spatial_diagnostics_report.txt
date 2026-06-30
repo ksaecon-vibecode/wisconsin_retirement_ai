@@ -1,0 +1,16 @@
+Spatial Diagnostics Report — Wisconsin Retirement AI
+2026-06-30 00:40:12 
+
+Test: Moran's I (Queen contiguity weights, row-standardized)
+
+# A tibble: 7 × 4
+  variable                      morans_i p_value significant
+  <chr>                            <dbl>   <dbl> <lgl>      
+1 Retirement enrollment rate       0.308  0.379  FALSE      
+2 Mean financial literacy score   -2.02   0.978  FALSE      
+3 Mean impatience index            0.414  0.339  FALSE      
+4 AI complaint density             3.26   0.0006 TRUE       
+5 Financial distress index         0.425  0.335  FALSE      
+6 Broadband providers (IV)         2.70   0.0035 TRUE       
+7 Poverty rate                     0.166  0.434  FALSE      
+2 variables with significant spatial autocorrelation (p < 0.05)

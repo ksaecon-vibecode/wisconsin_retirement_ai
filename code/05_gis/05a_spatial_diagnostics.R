@@ -140,7 +140,7 @@ nb_queen <- poly2nb(wi_sf, queen = TRUE)
 # so that the spatial lag is an average of neighbor values
 lw_queen <- nb2listw(nb_queen, style = "W", zero.policy = TRUE)
 
-cat(glue("  Average neighbors per county: {mean(card(nb_queen)):.1f}\n"))
+cat(glue("  Average neighbors per county: {round(mean(card(nb_queen)), 1)}\n"))
 cat(glue("  Min neighbors: {min(card(nb_queen))}\n"))
 cat(glue("  Max neighbors: {max(card(nb_queen))}\n\n"))
 
@@ -235,6 +235,239 @@ sink()
 
 cat(glue("\nReport saved: {report_path}\n"))
 
+
+# ============================================================
+# PART 2 — SPATIAL ROBUSTNESS MODEL
+# ============================================================
+# WHY THIS SECTION EXISTS:
+#   04c_robustness.R already ran Moran's I on the Model 3 Probit
+#   residuals and found significant spatial autocorrelation
+#   (I = 2.216, p = 0.013). This confirms county-clustered SE
+#   alone do not fully absorb the error structure — there is a
+#   genuine geographic component left over.
+#
+#   This section does NOT change the main results. Model 3 with
+#   county-clustered SE remains the primary specification reported
+#   in Table 2. Instead, this section adds a SPATIAL LAG model as
+#   an appendix robustness check, showing that the headline
+#   interaction effects (Literacy x AI, Impatience x AI) survive
+#   when spatial dependence is explicitly modeled.
+#
+# APPROACH:
+#   A spatial lag linear probability model (LPM) is used rather
+#   than a spatial lag Probit, because maximum-likelihood spatial
+#   Probit estimators are not well supported in standard R packages
+#   for the panel structure here (repeated counties across waves).
+#   The LPM with a spatial lag term (Wy) is the standard applied
+#   solution and is reported alongside the main Probit AMEs, which
+#   are themselves probability-scale and therefore comparable.
+#
+# OUTPUT:
+#   outputs/tables/table5_spatial_robustness.csv
+#   docs/spatial_robustness_log.txt
+# ============================================================
+
 cat("\n", strrep("=", 60), "\n", sep="")
-cat("Script 05a complete.\n")
+cat("PART 2 — Spatial Lag Robustness Model\n")
+cat(strrep("=", 60), "\n\n")
+
+library(spatialreg)   # Spatial lag / spatial error regression
+
+spatial_log <- c()
+slog <- function(msg) { cat(msg, "\n"); spatial_log <<- c(spatial_log, msg) }
+
+# ── S1. Load analytical dataset ───────────────────────────────
+slog("[S1] Loading analytical dataset for spatial model...")
+
+df_spatial <- read_parquet(file.path(final_dir, "master_analytical.parquet")) %>%
+  mutate(
+    county_fips = as.character(county_fips),
+    wave_fe     = factor(SURVEY_WAVE)
+  ) %>%
+  filter(
+    !is.na(enrolled), !is.na(literacy_score), !is.na(impatience_index),
+    !is.na(ai_density_log), !is.na(lit_x_ai), !is.na(imp_x_ai),
+    !is.na(distress_index), !is.na(log_median_income),
+    !is.na(poverty_rate), !is.na(pct_bach_plus), !is.na(unemp_rate)
+  )
+
+slog(glue("  Spatial model sample: {format(nrow(df_spatial), big.mark=',')} obs"))
+
+# ── S2. Aggregate to county level (one row per county) ───────
+# Spatial lag models require a clean cross-sectional structure.
+# We aggregate the individual-level data to county means, matching
+# the unit of analysis for the spatial weights matrix. This mirrors
+# the approach used to construct the AI Gap Index in 05c.
+
+slog("\n[S2] Aggregating to county level for spatial regression...")
+
+county_agg <- df_spatial %>%
+  group_by(county_fips) %>%
+  summarise(
+    enroll_rate        = mean(enrolled, na.rm = TRUE),
+    literacy_mean       = mean(literacy_score, na.rm = TRUE),
+    impatience_mean     = mean(impatience_index, na.rm = TRUE),
+    ai_density_mean     = mean(ai_density_log, na.rm = TRUE),
+    lit_x_ai_mean       = mean(lit_x_ai, na.rm = TRUE),
+    imp_x_ai_mean       = mean(imp_x_ai, na.rm = TRUE),
+    distress_mean       = mean(distress_index, na.rm = TRUE),
+    log_income_mean     = mean(log_median_income, na.rm = TRUE),
+    poverty_mean        = mean(poverty_rate, na.rm = TRUE),
+    bach_plus_mean      = mean(pct_bach_plus, na.rm = TRUE),
+    unemp_mean          = mean(unemp_rate, na.rm = TRUE),
+    n_obs               = n(),
+    .groups = "drop"
+  )
+
+slog(glue("  Counties with AI-subsample data: {nrow(county_agg)}"))
+
+# ── S3. Join to full county shapefile ─────────────────────────
+# The spatial weights matrix needs ALL 72 counties to build the
+# neighbor structure correctly, but lagsarlm() cannot handle NA
+# outcomes, so the final model sample is restricted afterward.
+
+wi_full <- wi_sf %>%
+  left_join(county_agg, by = "county_fips")
+
+n_with_data <- sum(!is.na(wi_full$enroll_rate))
+slog(glue("  Counties with full data after shapefile join: {n_with_data} of {nrow(wi_full)}"))
+
+if (n_with_data < 15) {
+  slog("  WARNING: Fewer than 15 counties have AI-subsample data.")
+  slog("  Spatial lag regression requires reasonable county coverage.")
+  slog("  Results below should be interpreted as suggestive only.")
+}
+
+# ── S4. Build spatial weights for counties with data ──────────
+wi_model_set <- wi_full %>% filter(!is.na(enroll_rate))
+slog(glue("  Final spatial regression sample: {nrow(wi_model_set)} counties"))
+
+nb_model   <- poly2nb(wi_model_set, queen = TRUE)
+n_isolated <- sum(card(nb_model) == 0)
+if (n_isolated > 0) {
+  slog(glue("  NOTE: {n_isolated} counties have zero neighbors in restricted sample"))
+}
+lw_model <- nb2listw(nb_model, style = "W", zero.policy = TRUE)
+
+# ── S5. Spatial lag model ──────────────────────────────────────
+# Model: enroll_rate = rho*W*enroll_rate + Xb + e
+# rho captures spillover: does a county's enrollment rate move
+# with its neighbors' enrollment rates, after controlling for
+# the same covariates as Model 3?
+
+slog("\n[S3] Estimating spatial lag model (county-level, LPM)...")
+
+spatial_lag_model <- tryCatch({
+  lagsarlm(
+    enroll_rate ~
+      literacy_mean + impatience_mean +
+      ai_density_mean + lit_x_ai_mean + imp_x_ai_mean +
+      distress_mean + log_income_mean +
+      poverty_mean + bach_plus_mean + unemp_mean,
+    data    = wi_model_set,
+    listw   = lw_model,
+    zero.policy = TRUE
+  )
+}, error = function(e) {
+  slog(glue("  Spatial lag model failed: {e$message}"))
+  NULL
+})
+
+# ── S6. Non-spatial OLS comparison (same county-level sample) ─
+# Direct comparison: does ignoring spatial structure change the
+# sign or magnitude of the headline interaction coefficients?
+
+ols_comparison <- lm(
+  enroll_rate ~
+    literacy_mean + impatience_mean +
+    ai_density_mean + lit_x_ai_mean + imp_x_ai_mean +
+    distress_mean + log_income_mean +
+    poverty_mean + bach_plus_mean + unemp_mean,
+  data = wi_model_set
+)
+
+# ── S7. Report results ──────────────────────────────────────────
+if (!is.null(spatial_lag_model)) {
+  slog("\n[S4] Spatial lag model results:")
+  sl_summary <- summary(spatial_lag_model)
+
+  slog(glue("  Rho (spatial lag coefficient): {round(spatial_lag_model$rho, 4)}"))
+
+  sl_coefs  <- coef(spatial_lag_model)
+  ols_coefs <- coef(ols_comparison)
+
+  compare_vars <- c("literacy_mean", "impatience_mean", "ai_density_mean",
+                     "lit_x_ai_mean", "imp_x_ai_mean")
+
+  slog("\n  Coefficient comparison — OLS vs Spatial Lag:")
+  for (v in compare_vars) {
+    ols_val <- if (v %in% names(ols_coefs)) round(ols_coefs[v], 4) else NA
+    sl_val  <- if (v %in% names(sl_coefs))  round(sl_coefs[v], 4)  else NA
+    slog(glue("    {str_pad(v, 20)}  OLS={ols_val}   Spatial={sl_val}"))
+  }
+
+  slog("\n  INTERPRETATION:")
+  slog("  If the Literacy x AI and Impatience x AI coefficients retain")
+  slog("  the same sign and similar magnitude in the spatial lag model")
+  slog("  as in OLS, this confirms the headline interaction effects are")
+  slog("  not artifacts of spatial clustering in the underlying data.")
+
+  spatial_tbl <- tibble(
+    term = c("rho (spatial lag)", compare_vars),
+    OLS_county_level_NOT_for_paper = c(
+      NA, sapply(compare_vars, function(v)
+        if (v %in% names(ols_coefs)) round(ols_coefs[v],4) else NA)
+    ),
+    Spatial_Lag_UNRELIABLE_n26_fragmented = c(
+      round(spatial_lag_model$rho, 4),
+      sapply(compare_vars, function(v)
+        if (v %in% names(sl_coefs)) round(sl_coefs[v],4) else NA)
+    )
+  )
+
+  # ── DIAGNOSTIC CAVEAT ─────────────────────────────────────────
+  # This table is NOT a validated robustness check. The spatial
+  # lag model was estimated on only 26 of 72 counties, fragmented
+  # into 5 disconnected spatial sub-graphs (2 counties had zero
+  # neighbors). Both headline interaction coefficients (literacy x
+  # AI, impatience x AI) FLIP SIGN relative to OLS, which is
+  # evidence of model instability from sparse, disconnected spatial
+  # data -- not evidence that the main Probit results are spatially
+  # robust. Do NOT cite these coefficients as a robustness check in
+  # the paper. Report only the diagnostic conclusion: a spatial lag
+  # model was attempted but county coverage was insufficient for
+  # reliable estimation (see docs/spatial_robustness_log.txt).
+  slog("\n  *** DIAGNOSTIC CAVEAT — DO NOT CITE AS ROBUSTNESS CHECK ***")
+  slog("  This spatial lag model used only 26 of 72 counties, split into")
+  slog("  5 disconnected sub-graphs. Both lit_x_ai and imp_x_ai flip sign")
+  slog("  relative to OLS -- this reflects estimator instability on a")
+  slog("  small, fragmented sample, NOT confirmation that main results")
+  slog("  are spatially robust. Table column names reflect this caveat.")
+  slog("  For the paper: report only that a spatial lag model was")
+  slog("  attempted and judged unreliable due to insufficient county")
+  slog("  coverage; do not report or interpret its coefficients.")
+
+  tbl_dir_local <- here("outputs","tables")
+  dir.create(tbl_dir_local, showWarnings = FALSE, recursive = TRUE)
+  spatial_tbl_path <- file.path(tbl_dir_local, "table5_spatial_robustness.csv")
+  write_csv(spatial_tbl, spatial_tbl_path)
+  slog(glue("\n  Spatial robustness table saved: {spatial_tbl_path}"))
+
+} else {
+  slog("\n  Spatial lag model could not be estimated.")
+  slog("  REPORT: Note in appendix that Moran's I confirms spatial")
+  slog("  autocorrelation (I=2.216, p=0.013) but the limited county")
+  slog("  coverage of the AI subsample (28 of 72 counties) prevents")
+  slog("  reliable spatial lag estimation. Recommend this as a")
+  slog("  documented limitation and a direction for future work with")
+  slog("  expanded CFPB coverage.")
+}
+
+# ── S8. Save spatial robustness log ──────────────────────────
+spatial_log_path <- file.path(docs_dir, "spatial_robustness_log.txt")
+writeLines(spatial_log, spatial_log_path)
+slog(glue("\nSpatial robustness log saved: {spatial_log_path}"))
+
+cat("\n", strrep("=", 60), "\n", sep="")
+cat("Script 05a complete (diagnostics + spatial robustness model).\n")
 cat(strrep("=", 60), "\n")

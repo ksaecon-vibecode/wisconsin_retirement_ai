@@ -1,0 +1,38 @@
+============================================================
+Phase 4 — IV-Probit Models
+2026-06-29 22:10:25
+============================================================
+
+[1] Loading analytical dataset...
+  AI subsample: 867 obs
+  IV subsample (with fin_ed): 790 obs
+
+[2] First stage — Broadband IV for AI density...
+  First stage results (broadband -> AI density):
+    bb_providers_25_3: b=-0.021, SE=0.0179, t=-1.17
+    First stage R²: 0.52
+    Instrument direction: Negative (unexpected)
+    Instrument strength: WEAK — interpret IV results with caution
+
+[3] IV-Probit via control function approach...
+  (Rivers & Vuong 1988: include first-stage residuals in Probit)
+  Control function term (ai_density_resid): b=0.6956, t=0.14
+  -> Not significant: endogeneity not detected at 5% level
+     OLS Probit estimates may be reliable
+  Model 3 IV: N=867
+
+[4] 2SLS Linear Probability Model (IV, for robustness)...
+  2SLS Model 2: N=867
+  2SLS diagnostics:
+  (Diagnostics not available)
+
+[5] Financial literacy endogeneity test...
+  Instrument: fin_ed_participated (received formal financial education)
+  fin_ed_participated -> literacy: b=0.0081, t=0.06
+  -> Weak first stage: financial education IV may be invalid
+  Literacy endogeneity test (control function residual):
+    lit_resid: b=4.6055, t=0.26
+  -> Not significant: OLS literacy coefficient likely unbiased
+
+[6] Producing IV results table...
+  IV table saved: C:/Users/ksaec/Downloads/wisconsin_retirement_ai/outputs/tables/table3_iv_probit.csv

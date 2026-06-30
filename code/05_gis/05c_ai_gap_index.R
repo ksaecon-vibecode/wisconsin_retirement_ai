@@ -60,6 +60,7 @@ library(here)
 library(glue)
 library(viridis)
 library(scales)    # For axis formatting
+library(ggrepel)   # Non-overlapping county labels in scatter plot
 
 # ── 0. Setup ─────────────────────────────────────────────────
 gis_dir   <- here("data", "raw", "gis")
@@ -211,10 +212,12 @@ county_data <- county_data %>%
 
 # Quadrant counts
 cat("\nQuadrant distribution:\n")
-county_data %>%
+quad_counts <- county_data %>%
   count(quadrant) %>%
-  arrange(quadrant) %>%
-  walk(~ cat(glue("  {.x$quadrant}: {.x$n} counties\n")))
+  arrange(quadrant)
+for (i in seq_len(nrow(quad_counts))) {
+  cat(glue("  {quad_counts$quadrant[i]}: {quad_counts$n[i]} counties\n"))
+}
 
 # ── 5. Join RUCC classification ───────────────────────────────
 if (!is.null(rucc_wi)) {
@@ -242,12 +245,22 @@ rankings <- county_data %>%
     across(c(barrier_severity, ai_exposure, enroll_rate,
              mean_literacy, mean_impatience, ai_density,
              mean_bb, mean_poverty),
-           ~ round(.x, 4))
+           ~ round(.x, 4)),
+    # Force county_fips to a guaranteed 5-character zero-padded string.
+    # Without this, write_csv() can output "55001" in a way that Excel/
+    # ArcGIS's CSV importer auto-detects as numeric on read-in, which
+    # breaks the text-to-text join against the shapefile's GEOID field
+    # (ArcGIS will not match a Long/Double field to a Text field even
+    # when the displayed values look identical). str_pad guarantees
+    # the column stays unambiguously 5-character text end to end.
+    county_fips = str_pad(as.character(county_fips), 5, "left", "0")
   )
 
 rankings_path <- file.path(tbl_dir, "ai_gap_index_rankings.csv")
 write_csv(rankings, rankings_path)
-cat(glue("Rankings saved: {rankings_path}\n\n"))
+cat(glue("Rankings saved: {rankings_path}\n"))
+cat("  NOTE: county_fips forced to 5-char text to prevent ArcGIS join\n")
+cat("  failures from numeric auto-detection on CSV import.\n\n")
 
 # ── 8. Quadrant scatter plot ───────────────────────────────────
 cat("Producing quadrant scatter plot...\n")
@@ -304,23 +317,10 @@ scatter <- ggplot(county_data,
     legend.position = "bottom"
   )
 
-# Try to add ggrepel labels (optional package)
-tryCatch({
-  library(ggrepel)
-  scatter <- scatter + ggrepel::geom_text_repel(
-    data = county_data %>% filter(barrier_severity > 0.5 | ai_exposure > 0.8),
-    aes(label = county_name_official),
-    size = 2.5, max.overlaps = 15,
-    segment.color = "#888888", segment.size = 0.3
-  )
-}, error = function(e) {
-  # ggrepel not installed — add simple labels instead
-  scatter <<- scatter + geom_text(
-    data = county_data %>% filter(barrier_severity > 0.8),
-    aes(label = county_name_official),
-    size = 2, hjust = -0.1
-  )
-})
+# Note: county labels are already added inline above via geom_text_repel
+# (line ~283). A duplicate tryCatch label block previously existed here
+# and caused some counties (Vernon, Kewaunee, Kenosha) to render with
+# two overlapping labels in the scatter plot — removed.
 
 ggsave(file.path(fig_dir, "ai_gap_index_scatter.png"), scatter,
        width = 10, height = 8, dpi = 300)
@@ -333,6 +333,28 @@ wi_gap_map <- wi_sf %>%
   left_join(county_data %>% select(county_fips, quadrant, barrier_severity,
                                     ai_exposure, priority),
             by = "county_fips")
+
+# ── 8b. Export ArcGIS-ready shapefile with index data pre-joined ──
+# Rather than rely on a CSV join inside ArcGIS Pro (which has caused
+# repeated NULL-join failures from shapefile .dbf field-type quirks
+# with GEOID), write the ALREADY-JOINED sf object directly as its own
+# shapefile. ArcGIS users open this file and the quadrant/barrier/
+# AI-exposure columns are native attributes — no join required at all.
+gap_shp_path <- file.path(gis_dir, "wi_ai_gap_index.shp")
+# Shapefile field names are truncated to 10 characters — rename first
+# so the truncation is predictable and readable in ArcGIS, rather than
+# letting st_write() silently cut "barrier_severity" to "barrier_s".
+wi_gap_map_export <- wi_gap_map %>%
+  rename(
+    quadrant  = quadrant,
+    barr_sev  = barrier_severity,
+    ai_expos  = ai_exposure,
+    priority  = priority
+  )
+st_write(wi_gap_map_export, gap_shp_path, delete_dsn = TRUE, quiet = TRUE)
+cat(glue("  ArcGIS-ready shapefile (pre-joined, no join needed): {gap_shp_path}\n"))
+cat("  Open this file directly in ArcGIS Pro -- quadrant data is already\n")
+cat("  built in as native attributes. Symbolize by 'quadrant' field.\n\n")
 
 map_gap <- ggplot(wi_gap_map) +
   geom_sf(

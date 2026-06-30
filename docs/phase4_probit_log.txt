@@ -1,10 +1,10 @@
 ============================================================
 Phase 4 — Probit Models (Main Results)
-2026-06-29 17:26:25
+2026-06-29 22:09:56
 ============================================================
 
 [1] Loading analytical dataset...
-  Rows: 1,544 | Cols: 85
+  Rows: 1,544 | Cols: 88
 
 [2] Defining model samples...
   Model 1 sample: 1,544 obs
@@ -26,10 +26,10 @@ Phase 4 — Probit Models (Main Results)
     Model 4b (female) N = 495
 
 [4] Computing average marginal effects (AME)...
-  Model 1 AME failed: For this model type, `marginaleffects` cannot take into account the uncertainty in fixed-effects parameters. This is especially consequential for predictions and their uncertainty intervals. Set `vcov=FALSE` to compute estimates without standard errors.
-  Model 2 AME failed: For this model type, `marginaleffects` cannot take into account the uncertainty in fixed-effects parameters. This is especially consequential for predictions and their uncertainty intervals. Set `vcov=FALSE` to compute estimates without standard errors.
-  Model 3 AME failed: For this model type, `marginaleffects` cannot take into account the uncertainty in fixed-effects parameters. This is especially consequential for predictions and their uncertainty intervals. Set `vcov=FALSE` to compute estimates without standard errors.
-  Model 4 AME failed: For this model type, `marginaleffects` cannot take into account the uncertainty in fixed-effects parameters. This is especially consequential for predictions and their uncertainty intervals. Set `vcov=FALSE` to compute estimates without standard errors.
+  Model 1: 6 effects computed
+  Model 2: 9 effects computed
+  Model 3: 10 effects computed
+  Model 4: 14 effects computed
 
 [5] Key coefficient results:
 ------------------------------------------------------------
@@ -56,10 +56,13 @@ Model 4 — Heterogeneity:
 
 [6] Average Marginal Effects — key variables:
 ------------------------------------------------------------
+Model 1 AME:
+Model 2 AME:
+Model 3 AME:
 
 [7] Producing publication table...
   Table saved: C:/Users/ksaec/Downloads/wisconsin_retirement_ai/outputs/tables/table2_probit_main.csv
 
 [8] Producing marginal effects plot...
-  Plot failed: no applicable method for 'mutate' applied to an object of class "NULL"
+  Figure saved: C:/Users/ksaec/Downloads/wisconsin_retirement_ai/outputs/figures/fig_marginal_effects.png
 Model objects saved: data/final/probit_models.rds

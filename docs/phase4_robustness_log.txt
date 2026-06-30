@@ -1,0 +1,49 @@
+============================================================
+Phase 4 — Robustness Checks
+2026-06-29 22:10:41
+============================================================
+
+[1] Loading data...
+  RUCC merged: 1544 counties matched
+  Base AI subsample: 867 obs
+
+[2] Estimating reference model (Model 3)...
+  Reference model N=867
+
+[3] R1: Alternative AI measure (keyword classifier)...
+  R1 skipped: keyword AI density has near-zero variation
+  (Only 2 keyword-flagged complaints across entire corpus)
+  This confirms semantic classifier captures real AI signal
+
+[4] R2: Standardized literacy and impatience...
+  R2 (standardized): N=867
+
+[5] R3: Pre/Post-2020 split (pre/post-ChatGPT AI adoption era)...
+  NOTE: All AI-subsample obs are already post-2015 (CFPB start date),
+  so a post-2015 filter is redundant with the main sample. Instead,
+  this splits the sample at 2020 -- before vs. after the generative-AI
+  adoption wave documented in Track A (AI complaint share rose from
+  <1% pre-2020 to 3.1% in 2024). This tests whether the AI moderation
+  effect is being driven by the more recent, higher-AI-density period.
+  Pre-2020 subsample (2015, 2018 waves): N=443
+  Post-2020 subsample (2021, 2024 waves): N=424
+  R3a (pre-2020): N=443
+  R3b (post-2020): N=424
+
+[6] R4: Metropolitan counties only...
+  R4 (metro): N=814
+
+[7] R5: Rural counties only...
+  R5 skipped: only 53 rural obs
+
+[8] R6: HC3 robust standard errors (no clustering)...
+  R6 (robust SE): N=867
+
+[9] Spatial autocorrelation test (Moran's I on residuals)...
+  Moran's I = 2.2159
+  p-value   = 0.0133
+  RESULT: Significant spatial autocorrelation in residuals
+          Spatial robustness model warranted (see appendix)
+
+[10] Producing robustness table...
+  Robustness table saved: C:/Users/ksaec/Downloads/wisconsin_retirement_ai/outputs/tables/table4_robustness.csv

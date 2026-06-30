@@ -77,7 +77,10 @@ if (!is.null(df_ai)) {
   ai_cols <- c("county_fips", "year",
                 "ai_complaint_density_final",
                 "ai_complaint_density_final_log",
+                "ai_complaint_density_kw_final",
+                "ai_complaint_density_kw_final_log",
                 "ai_complaints_keyword",
+                "ai_complaints_semantic",
                 "total_complaints")
   ai_cols <- ai_cols[ai_cols %in% names(df_ai)]
 

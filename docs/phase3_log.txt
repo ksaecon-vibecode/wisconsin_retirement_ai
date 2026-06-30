@@ -1,10 +1,10 @@
 ============================================================
 Phase 3: Variable Construction
-2026-06-29 17:08:01
+2026-06-29 22:09:30
 ============================================================
 
 [1/8] Loading master dataset...
-  Rows: 1,544 | Cols: 72
+  Rows: 1,544 | Cols: 75
   Waves: 2009, 2012, 2015, 2018, 2021, 2024
 
 [2/8] Constructing gender variable from NFCS public files...
@@ -79,8 +79,8 @@ SAVING ANALYTICAL DATASET
 ============================================================
   Saved: C:/Users/ksaec/Downloads/wisconsin_retirement_ai/data/final/master_analytical.parquet
   Rows: 1,544
-  Columns: 85
-  Size: 116.8 KB
+  Columns: 88
+  Size: 118.3 KB
 
 New variables constructed in Phase 3:
   [OK]                       female non-missing: 649

@@ -171,22 +171,64 @@ r2 <- feglm(
 log(glue("  R2 (standardized): N={r2$nobs}"))
 
 
-# ── 5. R3: Post-2015 waves only ───────────────────────────────
-log("\n[5] R3: Post-2015 waves only (CFPB data period)...")
+# ── 5. R3: Pre/Post-2020 split (pre/post generative-AI era) ───
+log("\n[5] R3: Pre/Post-2020 split (pre/post-ChatGPT AI adoption era)...")
+log("  NOTE: All AI-subsample obs are already post-2015 (CFPB start date),")
+log("  so a post-2015 filter is redundant with the main sample. Instead,")
+log("  this splits the sample at 2020 -- before vs. after the generative-AI")
+log("  adoption wave documented in Track A (AI complaint share rose from")
+log("  <1% pre-2020 to 3.1% in 2024). This tests whether the AI moderation")
+log("  effect is being driven by the more recent, higher-AI-density period.")
 
-df_post2015 <- df_ai %>% filter(SURVEY_WAVE >= 2015)
-r3 <- feglm(
-  enrolled ~
-    literacy_score + impatience_index +
-    ai_density_log + lit_x_ai + imp_x_ai +
-    distress_index + log_median_income +
-    poverty_rate + pct_bach_plus + unemp_rate |
-    wave_fe,
-  data    = df_post2015,
-  family  = binomial("probit"),
-  cluster = ~county_fips
-)
-log(glue("  R3 (post-2015): N={r3$nobs}"))
+df_pre2020  <- df_ai %>% filter(SURVEY_WAVE <  2021)
+df_post2020 <- df_ai %>% filter(SURVEY_WAVE >= 2021)
+
+log(glue("  Pre-2020 subsample (2015, 2018 waves): N={nrow(df_pre2020)}"))
+log(glue("  Post-2020 subsample (2021, 2024 waves): N={nrow(df_post2020)}"))
+
+r3a <- if (nrow(df_pre2020) >= 100) {
+  tryCatch({
+    feglm(
+      enrolled ~
+        literacy_score + impatience_index +
+        ai_density_log + lit_x_ai + imp_x_ai +
+        distress_index + log_median_income +
+        poverty_rate + pct_bach_plus + unemp_rate |
+        wave_fe,
+      data    = df_pre2020,
+      family  = binomial("probit"),
+      cluster = ~county_fips
+    )
+  }, error = function(e) { log(glue("  R3a failed: {e$message}")); NULL })
+} else {
+  log("  R3a skipped: insufficient pre-2020 obs")
+  NULL
+}
+if (!is.null(r3a)) log(glue("  R3a (pre-2020): N={r3a$nobs}"))
+
+r3b <- if (nrow(df_post2020) >= 100) {
+  tryCatch({
+    feglm(
+      enrolled ~
+        literacy_score + impatience_index +
+        ai_density_log + lit_x_ai + imp_x_ai +
+        distress_index + log_median_income +
+        poverty_rate + pct_bach_plus + unemp_rate |
+        wave_fe,
+      data    = df_post2020,
+      family  = binomial("probit"),
+      cluster = ~county_fips
+    )
+  }, error = function(e) { log(glue("  R3b failed: {e$message}")); NULL })
+} else {
+  log("  R3b skipped: insufficient post-2020 obs")
+  NULL
+}
+if (!is.null(r3b)) log(glue("  R3b (post-2020): N={r3b$nobs}"))
+
+# Keep r3 name pointing to post-2020 (the more AI-rich period) for
+# backward compatibility with the table-building code below
+r3 <- if (!is.null(r3b)) r3b else r3a
 
 
 # ── 6. R4: Metropolitan counties only ────────────────────────
@@ -309,9 +351,10 @@ log("\n[10] Producing robustness table...")
 
 robust_models <- list(
   "Reference\n(Model 3)"  = m_ref,
-  "Std. vars\n(R2)"       = r2,
-  "Post-2015\n(R3)"       = r3
+  "Std. vars\n(R2)"       = r2
 )
+if (!is.null(r3a)) robust_models[["Pre-2020\n(R3a)"]] <- r3a
+if (!is.null(r3b)) robust_models[["Post-2020\n(R3b)"]] <- r3b
 if (!is.null(r4)) robust_models[["Metro only\n(R4)"]] <- r4
 if (!is.null(r5)) robust_models[["Rural only\n(R5)"]] <- r5
 robust_models[["Robust SE\n(R6)"]] <- r6

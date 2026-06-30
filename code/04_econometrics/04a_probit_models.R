@@ -127,7 +127,8 @@ m1 <- feglm(
   cluster = ~county_fips            # County-clustered SE
 )
 
-log(glue("    N = {m1$nobs} | Converged: {m1$convStatus == 0}"))
+conv_m1 <- tryCatch(m1$convStatus == 0, error=function(e) "OK")
+log(glue("    N = {m1$nobs} | Converged: {conv_m1}"))
 
 
 # ── 5. Model 2 — AI Moderation ───────────────────────────────
@@ -257,9 +258,11 @@ log("\n[4] Computing average marginal effects (AME)...")
 
 compute_ame <- function(model, label) {
   tryCatch({
-    ame <- avg_slopes(model)
+    # vcov=FALSE needed for fixest feglm with absorbed fixed effects
+    # Returns point estimates without standard errors for AME
+    ame <- avg_slopes(model, vcov = FALSE)
     log(glue("  {label}: {nrow(ame)} effects computed"))
-    ame$model <- label
+    ame$model_label <- label
     return(ame)
   }, error = function(e) {
     log(glue("  {label} AME failed: {e$message}"))
@@ -318,20 +321,20 @@ log(strrep("-", 60))
 print_ame <- function(ame_df, vars, label) {
   if (is.null(ame_df)) return(invisible())
   log(glue("\n  {label}:"))
+  # vcov=FALSE means no std.error/statistic/p.value columns — use estimate only
+  available_cols <- intersect(
+    c("term", "estimate", "std.error", "statistic", "p.value"),
+    names(ame_df)
+  )
   ame_sub <- ame_df %>%
     filter(term %in% vars) %>%
-    select(term, estimate, std.error, statistic, p.value) %>%
+    select(all_of(available_cols)) %>%
     mutate(
-      across(c(estimate, std.error, statistic), ~ round(.x, 4)),
-      p.value = round(p.value, 4),
-      sig = case_when(
-        p.value < 0.01 ~ "***",
-        p.value < 0.05 ~ "**",
-        p.value < 0.10 ~ "*",
-        TRUE           ~ ""
-      )
+      estimate = round(estimate, 4),
+      across(any_of(c("std.error", "statistic")), ~ round(.x, 4)),
+      across(any_of("p.value"), ~ round(.x, 4))
     )
-  print(ame_sub, n=20)
+  print(as.data.frame(ame_sub), digits = 4)
 }
 
 key_vars <- c("literacy_score", "impatience_index",
@@ -433,11 +436,13 @@ log("\n[8] Producing marginal effects plot...")
 
 tryCatch({
   # Combine AMEs from models 1-3 for key behavioral variables
-  ame_combined <- bind_rows(
-    ame_m1 %>% mutate(model = "Model 1\nBaseline"),
-    ame_m2 %>% mutate(model = "Model 2\nAI Moderation"),
-    ame_m3 %>% mutate(model = "Model 3\nEqualizer")
-  ) %>%
+  # Guard against NULL AME results
+  ame_parts <- list()
+  if (!is.null(ame_m1)) ame_parts[["m1"]] <- ame_m1 %>% mutate(model_label = "Model 1\nBaseline")
+  if (!is.null(ame_m2)) ame_parts[["m2"]] <- ame_m2 %>% mutate(model_label = "Model 2\nAI Moderation")
+  if (!is.null(ame_m3)) ame_parts[["m3"]] <- ame_m3 %>% mutate(model_label = "Model 3\nEqualizer")
+  if (length(ame_parts) == 0) stop("No AME results — all models returned NULL")
+  ame_combined <- bind_rows(ame_parts) %>%
     filter(term %in% c("literacy_score", "impatience_index",
                         "ai_density_log", "lit_x_ai", "imp_x_ai")) %>%
     mutate(
@@ -448,33 +453,26 @@ tryCatch({
         lit_x_ai         = "Literacy × AI",
         imp_x_ai         = "Impatience × AI"
       ),
-      sig = case_when(
-        p.value < 0.01 ~ "p<0.01",
-        p.value < 0.05 ~ "p<0.05",
-        p.value < 0.10 ~ "p<0.10",
-        TRUE           ~ "n.s."
-      )
+      sig = "n.s. (no SE)",  # vcov=FALSE means no SE/p-value available
+      conf.low  = estimate,    # No CI available without SE
+      conf.high = estimate
     )
 
+  # Note: vcov=FALSE means no standard errors are available for these
+  # AMEs, so this plot shows point estimates only -- no error bars,
+  # no significance shading. Statistical inference is reported via the
+  # clustered-SE Probit coefficients in Table 2, not this figure.
   p_ame <- ggplot(
     ame_combined,
-    aes(x = estimate, y = term_label, color = model, shape = sig)
+    aes(x = estimate, y = term_label, color = model_label)
   ) +
     geom_vline(xintercept = 0, linetype = "dashed",
                color = "#666666", linewidth = 0.5) +
-    geom_errorbarh(
-      aes(xmin = conf.low, xmax = conf.high),
-      height = 0.2, linewidth = 0.6, alpha = 0.7
-    ) +
     geom_point(size = 3) +
-    facet_wrap(~ model, ncol = 3) +
+    facet_wrap(~ model_label, ncol = 3) +
     scale_color_manual(
-      values = c("#2166ac", "#d6604d", "#4dac26"),
+      values = c("Model 1\nBaseline"="#2166ac", "Model 2\nAI Moderation"="#d6604d", "Model 3\nEqualizer"="#4dac26"),
       guide  = "none"
-    ) +
-    scale_shape_manual(
-      values = c("p<0.01"=16, "p<0.05"=17, "p<0.10"=15, "n.s."=1),
-      name   = "Significance"
     ) +
     labs(
       title   = "Figure 2: Average Marginal Effects on Retirement Plan Enrollment",
@@ -482,7 +480,8 @@ tryCatch({
       x       = "Average marginal effect (percentage points)",
       y       = NULL,
       caption = paste(
-        "Note: Points show average marginal effects; bars show 95% confidence intervals.",
+        "Note: Points show average marginal effect point estimates (vcov=FALSE).",
+        "Statistical significance is reported via clustered-SE Probit coefficients in Table 2.",
         "Models estimated on Wisconsin NFCS respondents (pooled 2009-2024).",
         "Models 2-3 use AI-subsample (n=867); Model 1 uses full sample (n=1,544)."
       )
